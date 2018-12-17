@@ -65,6 +65,7 @@ def main(directory, extention, magic_text, polling_interval):
 
     # final exit point happens here
     # Log a message that we are shutting down
+    logger.log('Shutting down...')
     # Include the overall uptime since program start.
 
 
