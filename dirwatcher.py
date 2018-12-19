@@ -59,16 +59,24 @@ def watch_directory(directory, extention, magic_text,):
 
         if path not in checked_files.keys():
             checked_files[path] = []
+
         with open(path) as file:
             for index, line in enumerate(file.readlines()):
                 if index not in checked_files[path]:
                     checked_files[path].append(index)
 
                     if magic_text in line:
-                        matches.append('{}\nline: {}\n\n'.format(f, index+1))
+                        matches.append(
+                            '{}\nline: {}\n\n'
+                            .format(f, index+1))
+
     if matches:
-        logger.info('\n{} Matches Found:\n\n{}'
-                    .format(len(matches), ''.join(matches)))
+        logger.info(
+            '\n{} Matches Found:\n\n'
+            .format(len(matches))
+            + '{}'
+            .format(''.join(matches).strip())
+        )
 
 
 def signal_handler(sig_num, frame):
@@ -107,8 +115,9 @@ def main(directory, extention, magic_text, polling_interval):
         try:
             watch_directory(directory, extention, magic_text)
         except OSError:
-            logger.error("\nCouldn't find the file. Make sure the directory"
-                         + " and that the file exists and try again.")
+            logger.error("\nCouldn't find the directory. Make sure the"
+                         + " directory exists and try again.")
+            exit(1)
         except IOError:
             logger.error('\nFile not found.')
             # This is an UNHANDLED exception
