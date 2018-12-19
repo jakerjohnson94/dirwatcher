@@ -51,22 +51,24 @@ def create_logger():
 
 def watch_directory(directory, extention, magic_text,):
     global checked_files
-    files = [f for f in listdir(directory) if isfile(
+    matches = []
+    files = [join(directory, f) for f in listdir(directory) if isfile(
         join(directory, f)) and f.endswith(extention)]
 
-    for f in files:
-        path = directory + '/' + f
+    for path in files:
+
+        if path not in checked_files.keys():
+            checked_files[path] = []
         with open(path) as file:
-            if path not in checked_files.keys():
-                checked_files[path] = []
             for index, line in enumerate(file.readlines()):
                 if index not in checked_files[path]:
                     checked_files[path].append(index)
 
                     if magic_text in line:
-                        logger.info(
-                            '\nMatch found in {} line {}\n\n'
-                            .format(f, index+1))
+                        matches.append('{}\nline: {}\n\n'.format(f, index+1))
+    if matches:
+        logger.info('\n{} Matches Found:\n\n{}'
+                    .format(len(matches), ''.join(matches)))
 
 
 def signal_handler(sig_num, frame):
@@ -117,10 +119,11 @@ def main(directory, extention, magic_text, polling_interval):
 
     # final exit point happens here
     # Log a message that we are shutting down
-    logger.info('\n----------------------------------------------------------'
-                + '---\n\t\tTerminated Application\n\t\tTotal uptime: {} {}'
-                .format(round(time.time() - start_time, 2), 'seconds')
-                + '\n--------------------------------------------------------')
+    running_time = round(time.time() - start_time, 2)
+    logger.info('\n--------------------------------------------------------' +
+                '---\n\t\tTerminated Application' +
+                '\n\t\tTotal uptime: {} seconds'.format(running_time) +
+                '\n--------------------------------------------------------')
 
     exit(0)
     # Include the overall uptime since program start.
